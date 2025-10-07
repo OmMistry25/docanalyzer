@@ -106,7 +106,7 @@ export default function DocumentQA({ documentId }: DocumentQAProps) {
         <div className="space-y-4 max-h-96 overflow-y-auto">
           {messages.length === 0 && (
             <p className="text-sm text-muted-foreground text-center py-8">
-              Ask any question about this document. I'll answer based on the extracted information.
+              Ask any question about this document. I&apos;ll answer based on the extracted information.
             </p>
           )}
           {messages.map((msg, idx) => (

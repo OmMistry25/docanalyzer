@@ -1,0 +1,4 @@
+supabase/functions/**
+supabase/config.toml
+.vscode/
+
