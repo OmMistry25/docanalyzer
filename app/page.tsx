@@ -4,17 +4,25 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import UploadDropzone from "@/components/UploadDropzone";
 import DocumentStatus from "@/components/DocumentStatus";
+import ExtractionResults from "@/components/ExtractionResults";
+import { useDocumentStatus } from "@/hooks/useDocumentStatus";
 
 export default function Home() {
   const router = useRouter();
   const [currentDocumentId, setCurrentDocumentId] = useState<string | null>(null);
+  
+  const { status } = useDocumentStatus({
+    documentId: currentDocumentId,
+    enabled: !!currentDocumentId,
+  });
 
   const handleUploadComplete = (documentId: string, sessionId: string) => {
     console.log("Upload complete:", { documentId, sessionId });
     setCurrentDocumentId(documentId);
-    // TODO: Navigate to document detail page in later tasks
-    // router.push(`/documents/${documentId}`);
   };
+
+  // Check if extraction is complete
+  const isComplete = status?.job?.status === "done";
 
   return (
     <main className="min-h-screen p-8 md:p-24">
@@ -32,8 +40,12 @@ export default function Home() {
         <UploadDropzone onUploadComplete={handleUploadComplete} />
 
         {currentDocumentId && (
-          <div className="mt-8">
+          <div className="mt-8 space-y-6">
             <DocumentStatus documentId={currentDocumentId} />
+            
+            {isComplete && (
+              <ExtractionResults documentId={currentDocumentId} />
+            )}
           </div>
         )}
 

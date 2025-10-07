@@ -112,6 +112,8 @@ async function extractInsights(
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       max_tokens: 4000,
+      temperature: 0, // Deterministic output for consistency
+      seed: 12345, // Fixed seed for reproducible results
       messages: [
         {
           role: "user",
