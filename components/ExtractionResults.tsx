@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { AlertCircle, Calendar, DollarSign, FileText, Shield } from "lucide-react";
+import DocumentActions from "@/components/DocumentActions";
 
 interface ExtractionResultsProps {
   documentId: string;
@@ -55,6 +56,17 @@ export default function ExtractionResults({ documentId }: ExtractionResultsProps
 
   return (
     <div className="space-y-6">
+      {/* Download and Delete Actions */}
+      <Card>
+        <CardContent className="pt-6">
+          <DocumentActions
+            documentId={documentId}
+            extraction={extraction}
+            onDeleteSuccess={() => window.location.href = "/"}
+          />
+        </CardContent>
+      </Card>
+
       {/* Document Type & Summary */}
       <Card>
         <CardHeader>
