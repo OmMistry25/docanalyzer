@@ -66,6 +66,27 @@ export async function POST(request: NextRequest, context: RouteContext) {
       meta: { document_id: documentId, kind: "parse" },
     });
 
+    // Trigger the Supabase Edge Function immediately for processing
+    const edgeFunctionUrl = process.env.SUPABASE_FUNCTION_URL;
+    if (edgeFunctionUrl) {
+      try {
+        // Call the edge function asynchronously (don't wait for response)
+        fetch(edgeFunctionUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${process.env.SUPABASE_SERVICE_ROLE_KEY}`,
+          },
+        }).catch((err) => {
+          console.error("Failed to trigger edge function:", err);
+          // Don't fail the request if edge function call fails
+        });
+      } catch (error) {
+        console.error("Error triggering edge function:", error);
+        // Don't fail the request if edge function call fails
+      }
+    }
+
     return NextResponse.json({
       jobId: job.id,
       status: job.status,
