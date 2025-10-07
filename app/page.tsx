@@ -1,10 +1,15 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import UploadDropzone from "@/components/UploadDropzone";
 
 export default function Home() {
-  const handleFileSelect = (file: File) => {
-    console.log("File selected:", file.name, file.size);
+  const router = useRouter();
+
+  const handleUploadComplete = (documentId: string, sessionId: string) => {
+    console.log("Upload complete:", { documentId, sessionId });
+    // TODO: Navigate to document detail page in later tasks
+    // router.push(`/documents/${documentId}`);
   };
 
   return (
@@ -20,7 +25,7 @@ export default function Home() {
           </p>
         </div>
 
-        <UploadDropzone onFileSelect={handleFileSelect} />
+        <UploadDropzone onUploadComplete={handleUploadComplete} />
 
         <div className="mt-12 grid gap-4 md:grid-cols-3 text-center">
           <div>

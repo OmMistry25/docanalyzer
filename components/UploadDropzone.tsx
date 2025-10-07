@@ -2,10 +2,12 @@
 
 import { useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, FileText, X, AlertCircle } from "lucide-react";
+import { Upload, FileText, X, AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Progress } from "@/components/ui/progress";
+import { useUpload } from "@/hooks/useUpload";
 
 const MAX_FILE_SIZE = 30 * 1024 * 1024; // 30MB
 const ACCEPTED_FORMATS = {
@@ -16,40 +18,36 @@ const ACCEPTED_FORMATS = {
 };
 
 interface UploadDropzoneProps {
-  onFileSelect?: (file: File) => void;
+  onUploadComplete?: (documentId: string, sessionId: string) => void;
 }
 
-export default function UploadDropzone({ onFileSelect }: UploadDropzoneProps) {
+export default function UploadDropzone({ onUploadComplete }: UploadDropzoneProps) {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const { isUploading, progress, error, documentId, uploadFile, reset } = useUpload();
 
   const onDrop = useCallback(
-    (acceptedFiles: File[], rejectedFiles: any[]) => {
-      setError(null);
-
+    async (acceptedFiles: File[], rejectedFiles: any[]) => {
       // Handle rejected files
       if (rejectedFiles.length > 0) {
-        const rejection = rejectedFiles[0];
-        if (rejection.errors[0]?.code === "file-too-large") {
-          setError(
-            `File is too large. Maximum size is ${MAX_FILE_SIZE / 1024 / 1024}MB.`
-          );
-        } else if (rejection.errors[0]?.code === "file-invalid-type") {
-          setError("Invalid file type. Please upload PDF, JPG, PNG, or TIFF files.");
-        } else {
-          setError("Failed to upload file. Please try again.");
-        }
-        return;
+        return; // Errors handled by react-dropzone
       }
 
       // Handle accepted file
       if (acceptedFiles.length > 0) {
         const file = acceptedFiles[0];
         setSelectedFile(file);
-        onFileSelect?.(file);
+        
+        // Automatically start upload
+        try {
+          const result = await uploadFile(file);
+          onUploadComplete?.(result.documentId, result.sessionId);
+        } catch (error) {
+          // Error is already set in the upload hook
+          console.error("Upload failed:", error);
+        }
       }
     },
-    [onFileSelect]
+    [uploadFile, onUploadComplete]
   );
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
@@ -57,11 +55,12 @@ export default function UploadDropzone({ onFileSelect }: UploadDropzoneProps) {
     accept: ACCEPTED_FORMATS,
     maxFiles: 1,
     maxSize: MAX_FILE_SIZE,
+    disabled: isUploading || !!documentId,
   });
 
   const removeFile = () => {
     setSelectedFile(null);
-    setError(null);
+    reset();
   };
 
   const formatFileSize = (bytes: number) => {
@@ -79,7 +78,7 @@ export default function UploadDropzone({ onFileSelect }: UploadDropzoneProps) {
         </Alert>
       )}
 
-      {!selectedFile ? (
+      {!selectedFile || (!isUploading && !documentId) ? (
         <Card>
           <CardContent className="pt-6">
             <div
@@ -122,27 +121,48 @@ export default function UploadDropzone({ onFileSelect }: UploadDropzoneProps) {
       ) : (
         <Card>
           <CardContent className="pt-6">
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0">
-                <FileText className="h-10 w-10 text-primary" />
+            <div className="space-y-4">
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  {documentId ? (
+                    <CheckCircle2 className="h-10 w-10 text-green-500" />
+                  ) : isUploading ? (
+                    <Loader2 className="h-10 w-10 text-primary animate-spin" />
+                  ) : (
+                    <FileText className="h-10 w-10 text-primary" />
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium truncate">{selectedFile.name}</p>
+                  <p className="text-sm text-muted-foreground">
+                    {formatFileSize(selectedFile.size)}
+                  </p>
+                  {isUploading && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Uploading... {Math.round(progress)}%
+                    </p>
+                  )}
+                  {documentId && (
+                    <p className="text-xs text-green-600 mt-1">
+                      Upload complete!
+                    </p>
+                  )}
+                </div>
+                {!isUploading && !documentId && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={removeFile}
+                    className="flex-shrink-0"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="font-medium truncate">{selectedFile.name}</p>
-                <p className="text-sm text-muted-foreground">
-                  {formatFileSize(selectedFile.size)}
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  {selectedFile.type || "Unknown type"}
-                </p>
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={removeFile}
-                className="flex-shrink-0"
-              >
-                <X className="h-4 w-4" />
-              </Button>
+
+              {isUploading && (
+                <Progress value={progress} className="w-full" />
+              )}
             </div>
           </CardContent>
         </Card>
