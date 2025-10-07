@@ -7,11 +7,21 @@ export interface UploadTokenResponse {
   expiresAt: string;
 }
 
+export interface JobStatus {
+  id: string;
+  status: "queued" | "running" | "done" | "error";
+  error?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface DocumentStatus {
   id: string;
+  filename: string;
   status: "queued" | "processing" | "succeeded" | "failed";
-  detected_type?: string;
-  created_at: string;
-  expires_at: string;
+  detectedType?: string | null;
+  createdAt: string;
+  expiresAt: string;
+  job: JobStatus | null;
 }
 

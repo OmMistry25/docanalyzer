@@ -1,13 +1,17 @@
 "use client";
 
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import UploadDropzone from "@/components/UploadDropzone";
+import DocumentStatus from "@/components/DocumentStatus";
 
 export default function Home() {
   const router = useRouter();
+  const [currentDocumentId, setCurrentDocumentId] = useState<string | null>(null);
 
   const handleUploadComplete = (documentId: string, sessionId: string) => {
     console.log("Upload complete:", { documentId, sessionId });
+    setCurrentDocumentId(documentId);
     // TODO: Navigate to document detail page in later tasks
     // router.push(`/documents/${documentId}`);
   };
@@ -26,6 +30,12 @@ export default function Home() {
         </div>
 
         <UploadDropzone onUploadComplete={handleUploadComplete} />
+
+        {currentDocumentId && (
+          <div className="mt-8">
+            <DocumentStatus documentId={currentDocumentId} />
+          </div>
+        )}
 
         <div className="mt-12 grid gap-4 md:grid-cols-3 text-center">
           <div>
