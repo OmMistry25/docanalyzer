@@ -26,7 +26,7 @@ export async function POST(request: NextRequest, context: RouteContext) {
     // Fetch document and extraction data
     const { data: document, error: docError } = await supabaseAdmin
       .from("documents")
-      .select("filename, mime_type, detected_type")
+      .select("filename, mime, detected_type")
       .eq("id", documentId)
       .single();
 
