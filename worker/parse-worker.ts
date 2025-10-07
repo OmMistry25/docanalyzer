@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import { config } from "dotenv";
 import OpenAI from "openai";
-import { DocumentInsightsSchema, EXTRACTION_PROMPT } from "./extraction-schemas";
+import { DocumentInsightsSchema, DOCUMENT_TYPE_DETECTION_PROMPT, getExtractionPrompt } from "./extraction-schemas";
 
 config({ path: ".env.local" });
 
@@ -91,6 +91,49 @@ async function downloadFile(storagePath: string): Promise<Buffer> {
 }
 
 /**
+ * Detect document type using OpenAI GPT-4 Vision
+ */
+async function detectDocumentType(
+  base64Data: string,
+  imageType: string
+): Promise<string> {
+  console.log(`   🔍 Detecting document type...`);
+
+  const response = await openai.chat.completions.create({
+    model: "gpt-4o",
+    max_tokens: 500,
+    temperature: 0,
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "image_url",
+            image_url: {
+              url: `data:${imageType};base64,${base64Data}`,
+            },
+          },
+          {
+            type: "text",
+            text: DOCUMENT_TYPE_DETECTION_PROMPT,
+          },
+        ],
+      },
+    ],
+    response_format: { type: "json_object" },
+  });
+
+  const content = response.choices[0].message.content;
+  if (!content) {
+    throw new Error("No response from OpenAI for document type detection");
+  }
+
+  const parsed = JSON.parse(content);
+  console.log(`   ✓ Detected document type: ${parsed.documentType}`);
+  return parsed.documentType;
+}
+
+/**
  * Extract insights from document using OpenAI GPT-4 Vision
  */
 async function extractInsights(
@@ -109,6 +152,12 @@ async function extractInsights(
   else if (mimeType.includes("webp")) imageType = "image/webp";
 
   try {
+    // Step 1: Detect document type
+    const documentType = await detectDocumentType(base64Data, imageType);
+
+    // Step 2: Extract insights using type-specific template
+    const extractionPrompt = getExtractionPrompt(documentType);
+    
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       max_tokens: 4000,
@@ -126,7 +175,7 @@ async function extractInsights(
             },
             {
               type: "text",
-              text: EXTRACTION_PROMPT,
+              text: extractionPrompt,
             },
           ],
         },
