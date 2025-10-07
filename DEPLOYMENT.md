@@ -10,7 +10,9 @@ This guide walks you through deploying DocAnalyzer to production using Vercel (f
 - **Database**: Supabase Postgres (already set up)
 - **Storage**: Supabase Storage (already set up)
 - **Background Worker**: Supabase Edge Function (`process-queue`)
-- **Cron Trigger**: Vercel Cron → Supabase Edge Function (runs every minute)
+- **Processing Trigger**: 
+  - **Primary**: Immediate invocation when document is uploaded (no waiting!)
+  - **Backup**: Vercel Cron runs daily at midnight UTC to catch any missed jobs
 
 ---
 
@@ -354,8 +356,17 @@ pnpm view:extraction  # View latest extraction
 
 Your DocAnalyzer app is now running in production with:
 - ✅ Zero-friction document upload
+- ✅ **Immediate AI processing** - documents are analyzed as soon as they're uploaded!
 - ✅ AI-powered analysis with GPT-4 Vision
 - ✅ Background processing with Supabase Edge Functions
-- ✅ Automatic job queue processing via Vercel Cron
+- ✅ Backup cron job to catch any missed documents (daily)
 - ✅ Scalable, serverless architecture
+
+## How It Works
+
+1. **User uploads document** → API creates job
+2. **API immediately triggers** Supabase Edge Function
+3. **Edge Function processes** document with GPT-4 Vision
+4. **Results appear** in real-time (typically 10-30 seconds)
+5. **Daily cron** catches any jobs that might have failed
 
