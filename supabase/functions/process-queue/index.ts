@@ -240,9 +240,10 @@ async function processJob(job: any, document: any) {
 
     // Audit log
     await supabase.from("audit_logs").insert({
-      event: "job_completed",
-      metadata: {
-        jobId: job.id,
+      action: "job_completed",
+      entity: "job",
+      entity_id: job.id,
+      meta: {
         documentId: document.id,
         documentType,
         extractionId: extraction.id,
