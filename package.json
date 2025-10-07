@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "verify:db": "tsx scripts/verify-db.ts",
-    "setup:storage": "tsx scripts/setup-storage.ts"
+    "setup:storage": "tsx scripts/setup-storage.ts",
+    "test:upload-token": "tsx scripts/test-upload-token.ts",
+    "check:docs": "tsx scripts/check-documents.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
