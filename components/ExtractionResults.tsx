@@ -11,6 +11,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { AlertCircle, Calendar, DollarSign, FileText, Shield } from "lucide-react";
 import DocumentActions from "@/components/DocumentActions";
+import DocumentQA from "@/components/DocumentQA";
 
 interface ExtractionResultsProps {
   documentId: string;
@@ -238,6 +239,9 @@ export default function ExtractionResults({ documentId }: ExtractionResultsProps
           </CardContent>
         </Card>
       )}
+
+      {/* Q&A Section */}
+      <DocumentQA documentId={documentId} />
     </div>
   );
 }
