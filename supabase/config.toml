@@ -1,0 +1,14 @@
+# Supabase Configuration
+
+[project]
+# Project name and ID - set these after creating your Supabase project
+# ref = "your-project-ref"
+
+[functions]
+# Edge Functions configuration
+enabled = true
+
+[functions.process-queue]
+# This function runs on a schedule to process queued jobs
+# Invoke it manually or set up a cron trigger
+

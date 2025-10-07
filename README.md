@@ -68,6 +68,15 @@ pnpm dev
 
 Open [http://localhost:3000](http://localhost:3000)
 
+## Deployment to Production
+
+See **[DEPLOYMENT.md](DEPLOYMENT.md)** for complete production deployment guide using:
+- **Vercel** for Next.js app hosting
+- **Supabase Edge Functions** for background worker
+- **Vercel Cron** for automated job processing
+
+Estimated monthly cost: **$30-90** (mostly OpenAI API usage)
+
 ## Architecture
 
 See `architecture (13).md` for detailed system design.
@@ -80,6 +89,7 @@ See `tasks (13).md` for the MVP build plan.
 
 - **Frontend**: Next.js 15, TypeScript, Tailwind, shadcn/ui
 - **Backend**: Next.js API routes, server actions
-- **Database**: Postgres (Supabase or self-hosted)
-- **Storage**: Supabase Storage or S3
-- **AI**: OpenAI, Anthropic, Google Vision, AWS Textract
+- **Database**: Postgres (Supabase)
+- **Storage**: Supabase Storage
+- **Background Worker**: Supabase Edge Functions
+- **AI**: OpenAI GPT-4 Vision
