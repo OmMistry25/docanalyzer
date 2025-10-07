@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { requestUploadToken, uploadFileToStorage, storeSessionId } from "@/lib/api";
+import { requestUploadToken, uploadFileToStorage, storeSessionId, enqueueParseJob } from "@/lib/api";
 
 interface UploadState {
   isUploading: boolean;
@@ -45,6 +45,9 @@ export function useUpload() {
 
       // Step 3: Store session ID for later access
       storeSessionId(tokenData.sessionId);
+
+      // Step 4: Enqueue parse job
+      await enqueueParseJob(tokenData.documentId);
 
       // Success!
       setState({

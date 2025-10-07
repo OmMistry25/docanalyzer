@@ -11,7 +11,8 @@
     "setup:storage": "tsx scripts/setup-storage.ts",
     "test:upload-token": "tsx scripts/test-upload-token.ts",
     "check:docs": "tsx scripts/check-documents.ts",
-    "verify:storage": "tsx scripts/verify-storage.ts"
+    "verify:storage": "tsx scripts/verify-storage.ts",
+    "check:jobs": "tsx scripts/check-jobs.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

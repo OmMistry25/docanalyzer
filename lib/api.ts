@@ -82,3 +82,19 @@ export function getStoredSessionId(): string | null {
   return localStorage.getItem("docanalyzer_session_id");
 }
 
+/**
+ * Enqueue a parse job for a document
+ */
+export async function enqueueParseJob(documentId: string): Promise<void> {
+  const response = await fetch(`/api/documents/${documentId}/job`, {
+    method: "POST",
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || "Failed to enqueue parse job");
+  }
+
+  return response.json();
+}
+
