@@ -52,6 +52,36 @@ async function updateJobStatus(
 }
 
 /**
+ * Download file from storage using signed URL
+ */
+async function downloadFile(storagePath: string): Promise<Buffer> {
+  console.log(`   📥 Downloading file...`);
+
+  // Generate signed download URL (valid for 1 hour)
+  const { data: signedUrl, error: urlError } = await supabase.storage
+    .from("docs")
+    .createSignedUrl(storagePath, 3600);
+
+  if (urlError || !signedUrl) {
+    throw new Error(`Failed to generate signed URL: ${urlError?.message}`);
+  }
+
+  // Download file bytes
+  const response = await fetch(signedUrl.signedUrl);
+  
+  if (!response.ok) {
+    throw new Error(`Failed to download file: ${response.statusText}`);
+  }
+
+  const arrayBuffer = await response.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
+  console.log(`   ✓ Downloaded ${(buffer.length / 1024).toFixed(2)} KB`);
+  
+  return buffer;
+}
+
+/**
  * Process a single parse job
  */
 async function processJob(job: Job, document: Document) {
@@ -66,16 +96,22 @@ async function processJob(job: Job, document: Document) {
     await updateJobStatus(job.id, "running");
     console.log(`   Status: running`);
 
-    // TODO: T15 - Download file using signed URL
+    // T15 - Download file using signed URL
+    const fileBuffer = await downloadFile(document.storage_path);
+    console.log(`   ✓ File downloaded successfully (${fileBuffer.length} bytes)`);
+
+    // Verify file size matches
+    if (fileBuffer.length !== document.size_bytes) {
+      console.warn(`   ⚠️  Size mismatch: expected ${document.size_bytes}, got ${fileBuffer.length}`);
+    } else {
+      console.log(`   ✓ File size verified`);
+    }
+
     // TODO: T16 - Run OCR
     // TODO: T17 - Detect document type
     // TODO: T18 - Extract structured data
     // TODO: T19 - Generate insights
     // TODO: T20 - Save artifacts
-
-    // For now, just simulate processing
-    console.log(`   Processing...`);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
 
     // Mark as done
     await updateJobStatus(job.id, "done");
@@ -86,7 +122,10 @@ async function processJob(job: Job, document: Document) {
       action: "job_completed",
       entity: "job",
       entity_id: job.id,
-      meta: { document_id: document.id },
+      meta: { 
+        document_id: document.id,
+        file_size: fileBuffer.length,
+      },
     });
   } catch (error: any) {
     console.error(`   ❌ Job failed:`, error.message);

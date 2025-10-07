@@ -13,7 +13,8 @@
     "check:docs": "tsx scripts/check-documents.ts",
     "verify:storage": "tsx scripts/verify-storage.ts",
     "check:jobs": "tsx scripts/check-jobs.ts",
-    "worker": "tsx worker/parse-worker.ts"
+    "worker": "tsx worker/parse-worker.ts",
+    "test:worker-download": "tsx scripts/test-worker-download.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
