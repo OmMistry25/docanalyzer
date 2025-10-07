@@ -14,7 +14,9 @@
     "verify:storage": "tsx scripts/verify-storage.ts",
     "check:jobs": "tsx scripts/check-jobs.ts",
     "worker": "tsx worker/parse-worker.ts",
-    "test:worker-download": "tsx scripts/test-worker-download.ts"
+    "test:worker-download": "tsx scripts/test-worker-download.ts",
+    "view:extraction": "tsx scripts/view-extraction.ts",
+    "reset:job": "tsx scripts/reset-job.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -24,6 +26,7 @@
     "clsx": "^2.1.1",
     "lucide-react": "^0.545.0",
     "next": "^15.0.1",
+    "openai": "^6.2.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-dropzone": "^14.3.8",
